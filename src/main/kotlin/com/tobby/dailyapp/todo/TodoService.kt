@@ -1,5 +1,6 @@
 package com.tobby.dailyapp.todo
 
+import jakarta.transaction.Transactional
 import org.springframework.data.domain.*
 import org.springframework.stereotype.Service
 
@@ -18,6 +19,17 @@ class TodoService(
         return result.id!!
     }
 
+    @Transactional
+    fun updateTodo(id: Long, title: String?, priority: Int?, isDone: Boolean?) {
+        val todo = todoRepository.findById(id)
+            .orElseThrow { IllegalArgumentException("Todo 없음") }
+
+        todo.update(
+            title = title,
+            isDone = isDone,
+            priority = priority
+        )
+    }
     fun deleteTodo(id: Long) {
         require(todoRepository.existsById(id)) { "존재하지 않는 Todo입니다."}
         todoRepository.deleteById(id)
