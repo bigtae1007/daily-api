@@ -10,7 +10,7 @@ class Todo(
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long = 0,
+    val id: Long? = null,
 
     @Column(nullable = false)
     val title: String,
@@ -19,7 +19,7 @@ class Todo(
     val isDone: Boolean = false,
 
     @Column(nullable = false)
-    val priority: Int = 2,
+    val priority: Int = 1,
 
     @Column(name = "due_date")
     val dueDate: LocalDate? = null,

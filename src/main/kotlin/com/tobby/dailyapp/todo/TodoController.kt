@@ -28,11 +28,11 @@ class TodoController(
 
     @PostMapping
     fun insertTodo(
-       @Valid @RequestBody request: TodoCreateRequest
+        @Valid @RequestBody request: TodoCreateRequest
     ): ApiResponse<MessageResponse> {
         try {
-            println(request)
-            return ApiResponse(MessageResponse("success"))
+            val id = todoService.createTodo(request.title, request.priority ?: 0, request.isDone ?: false)
+            return ApiResponse(MessageResponse("저장에 성공했습니다.", id))
         } catch (e: Exception) {
             return ApiResponse(MessageResponse("fail", -1, e.message))
         }

@@ -12,7 +12,9 @@ class TodoService(
         return todoRepository.findAll(pageable).content
     }
 
-    fun createTodo() {
-
+    fun createTodo(title: String, priority: Int, isDone: Boolean) : Long {
+        val todo = Todo(title = title, priority = priority, isDone = isDone)
+        val result =  todoRepository.save(todo)
+        return result.id!!
     }
 }
