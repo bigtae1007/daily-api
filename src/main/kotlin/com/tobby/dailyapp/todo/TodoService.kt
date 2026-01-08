@@ -17,4 +17,9 @@ class TodoService(
         val result =  todoRepository.save(todo)
         return result.id!!
     }
+
+    fun deleteTodo(id: Long) {
+        require(todoRepository.existsById(id)) { "존재하지 않는 Todo입니다."}
+        todoRepository.deleteById(id)
+    }
 }

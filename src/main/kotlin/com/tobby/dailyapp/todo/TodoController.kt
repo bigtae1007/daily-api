@@ -5,6 +5,7 @@ import com.tobby.dailyapp.common.MessageResponse
 import com.tobby.dailyapp.todo.dto.TodoCreateRequest
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Null
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -36,6 +37,19 @@ class TodoController(
         } catch (e: Exception) {
             return ApiResponse(MessageResponse("fail", -1, e.message))
         }
+    }
+
+    @DeleteMapping
+    fun deleteTodo(
+        @RequestParam id: Long
+    ): ApiResponse<MessageResponse> {
+        try {
+            todoService.deleteTodo(id)
+            return ApiResponse(MessageResponse("$id 삭제에 성공했습니다."))
+        }catch (e: Exception){
+            return ApiResponse(MessageResponse("fail", -1, e.message))
+        }
+
     }
 
 }
