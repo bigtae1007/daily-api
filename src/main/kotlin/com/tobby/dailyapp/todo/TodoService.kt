@@ -1,14 +1,18 @@
 package com.tobby.dailyapp.todo
 
-import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.*
 import org.springframework.stereotype.Service
 
 @Service
 class TodoService(
     private val todoRepository: TodoRepository
 ) {
-    fun getTodos(size:Int = 5): List<Todo> {
-        val pageable = PageRequest.of(0, size)
+    fun getTodos(size: Int): List<Todo> {
+        val pageable = PageRequest.of(0, size, Sort.by("id").descending())
         return todoRepository.findAll(pageable).content
+    }
+
+    fun createTodo() {
+
     }
 }
