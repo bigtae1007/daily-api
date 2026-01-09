@@ -2,6 +2,7 @@ package com.tobby.dailyapp.todo
 
 import com.tobby.dailyapp.common.ApiResponse
 import com.tobby.dailyapp.common.MessageResponse
+import com.tobby.dailyapp.common.logger
 import com.tobby.dailyapp.todo.dto.TodoCreateRequest
 import com.tobby.dailyapp.todo.dto.TodoUpdateRequest
 import jakarta.validation.Valid
@@ -18,14 +19,15 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/todo")
 class TodoController(
-    private val todoService: TodoService
+    private val todoService: TodoService,
 ) {
+    private val log = logger<TodoController>()
 
     @GetMapping
     fun getTodos(
         @RequestParam size: Int
     ): ApiResponse<List<Todo>> {
-        println(size)
+        log.info("____:____:____:::: {}", size)
         return ApiResponse(todoService.getTodos(size))
     }
 
@@ -48,10 +50,11 @@ class TodoController(
         try {
             todoService.updateTodo(request.id, request.title, request.priority, request.isDone)
             return ApiResponse(MessageResponse("$1 수정에 성공했습니다."))
-        }catch (e: Exception){
+        } catch (e: Exception) {
             return ApiResponse(MessageResponse("fail", -1, e.message))
         }
     }
+
     @DeleteMapping
     fun deleteTodo(
         @RequestParam id: Long
@@ -59,7 +62,7 @@ class TodoController(
         try {
             todoService.deleteTodo(id)
             return ApiResponse(MessageResponse("$id 삭제에 성공했습니다."))
-        }catch (e: Exception){
+        } catch (e: Exception) {
             return ApiResponse(MessageResponse("fail", -1, e.message))
         }
     }
