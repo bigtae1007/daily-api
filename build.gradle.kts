@@ -26,7 +26,8 @@ dependencies {
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 
-	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+	implementation("org.springframework.boot:spring-boot-starter-data-jpa") // JPA로 쿼리 작성
+	implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3") // MYbatis로 쿼리작성
 	runtimeOnly("com.mysql:mysql-connector-j")
 
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
