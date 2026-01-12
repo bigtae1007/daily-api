@@ -1,5 +1,6 @@
 package com.tobby.dailyapp.todo
 
+import com.tobby.dailyapp.todo.dto.TodoData
 import com.tobby.dailyapp.todo.dto.TodoListResponse
 import com.tobby.dailyapp.todo.mapper.TodoMapper
 import com.tobby.dailyapp.todo.repository.TodoRepository
@@ -10,7 +11,7 @@ import org.springframework.stereotype.Service
 @Service
 class TodoService(
     private val todoRepository: TodoRepository,
-    private val todoMapper: TodoMapper
+    private val todoMapper: TodoMapper,
 ) {
     fun getTodos(size: Int): List<Todo> {
         val pageable = PageRequest.of(0, size, Sort.by("id").descending())
@@ -18,13 +19,19 @@ class TodoService(
     }
 
     fun getSubTodos(size: Int): List<TodoListResponse> {
-        return todoMapper.findSubTodos()
+        return todoMapper.findSubTodos(size)
     }
 
     fun createTodo(title: String, priority: Int, isDone: Boolean): Long {
         val todo = Todo(title = title, priority = priority, isDone = isDone)
         val result = todoRepository.save(todo)
         return result.id!!
+    }
+
+    fun createSubTodo(title: String, todoId: Long): Long {
+        val todo = TodoData(title=title, todoId = todoId)
+        todoMapper.insertSubTodos(todo)
+        return todo.id!!
     }
 
     @Transactional

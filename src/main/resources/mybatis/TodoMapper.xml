@@ -6,6 +6,16 @@
 <mapper namespace="com.tobby.dailyapp.todo.mapper.TodoMapper">
     <select id="findSubTodos" resultType="com.tobby.dailyapp.todo.dto.TodoListResponse">
         SELECT *
-        FROM sub_todo LIMIT 10
+        FROM sub_todo
+        ORDER BY id DESC
+        LIMIT #{size}
     </select>
+
+    <insert id="insertSubTodos"
+            useGeneratedKeys="true"
+            keyProperty="id"
+    >
+        INSERT sub_todo (todo_id, title)
+            VALUE (#{todoId}, #{title})
+    </insert>
 </mapper>
