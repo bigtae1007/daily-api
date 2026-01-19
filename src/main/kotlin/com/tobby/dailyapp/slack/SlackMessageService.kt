@@ -1,5 +1,6 @@
 package com.tobby.dailyapp.slack
 
+import com.tobby.dailyapp.common.logger
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
@@ -9,8 +10,10 @@ import org.springframework.web.client.RestTemplate
 
 @Service
 class SlackMessageService(
-    private val restTemplate: RestTemplate
+    private val restTemplate: RestTemplate,
 ) {
+    private val log = logger<SlackMessageService>()
+
     @Value("\${slack.bot-token}")
     private lateinit var botToken: String
 
@@ -24,10 +27,19 @@ class SlackMessageService(
 
         val body = mapOf(
             "channel" to channel,
-            "text" to "시스템 알림 : $text"
+            "text" to "시스템 알림 : \n$text"
         )
 
         val request = HttpEntity(body, headers)
-        restTemplate.postForEntity(url, request, String::class.java)
+        val response = restTemplate.postForEntity(url, request, String::class.java)
+
+        val responseBody = response.body
+            ?: throw IllegalStateException("Slack 응답이 비어있습니다")
+
+        if (!responseBody.contains("\"ok\":true")) {
+            log.error("Slack 메시지 전송 실패: {}", responseBody)
+        } else {
+            log.info("Slack 메시지 전송 성공")
+        }
     }
 }
