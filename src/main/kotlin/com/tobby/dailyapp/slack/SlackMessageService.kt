@@ -17,7 +17,7 @@ class SlackMessageService(
     @Value("\${slack.bot-token}")
     private lateinit var botToken: String
 
-    fun sendMessage(channel: String, text: String) {
+    fun sendMessage(channel: String, text: String, type: MessageType) {
         val url = "https://slack.com/api/chat.postMessage"
 
         val headers = HttpHeaders().apply {
@@ -25,9 +25,16 @@ class SlackMessageService(
             setBearerAuth(botToken)
         }
 
+        val styledText: String = when (type) {
+            MessageType.CHECK ->
+                "-------------------\n🩺 *Health Check*\n \n$text\n "
+
+            MessageType.INFO ->
+                "-------------------\nℹ️ *System Info*\n \n$text\n "
+        }
         val body = mapOf(
             "channel" to channel,
-            "text" to "시스템 알림 : \n$text"
+            "text" to styledText
         )
 
         val request = HttpEntity(body, headers)

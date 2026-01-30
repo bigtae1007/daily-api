@@ -10,8 +10,8 @@ class BlogBatchRunner (
 ){
     private val log = logger<BlogBatchRunner>()
 
-    @Scheduled(cron = "*/10 * * * * *")
-    fun run () {
-        log.info("Test__Batch_Run")
-    }
+//    @Scheduled(cron = "*/10 * * * * *")
+//    fun run () {
+//        log.info("Test__Batch_Run")
+//    }
 }

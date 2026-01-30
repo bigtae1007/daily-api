@@ -1,0 +1,21 @@
+package com.tobby.dailyapp.batch.health
+
+import com.tobby.dailyapp.slack.MessageType
+import com.tobby.dailyapp.slack.SlackMessageService
+import org.springframework.scheduling.annotation.Scheduled
+import org.springframework.stereotype.Component
+
+@Component
+class HealthBatchRunner(
+    val slackMessageService: SlackMessageService
+) {
+    @Scheduled(cron = "0 0 10-20/2 * * *")
+    fun runCanAbleCheckTime() {
+        slackMessageService.sendMessage(channel = "#server-api-alarm", text = "서버 정상 동작 중!", type = MessageType.CHECK)
+    }
+
+    @Scheduled(cron = "*/10 * * * * *")
+    fun runTestAlam() {
+        slackMessageService.sendMessage(channel = "#server-api-alarm", text = "알람 보내보기", type = MessageType.INFO)
+    }
+}
