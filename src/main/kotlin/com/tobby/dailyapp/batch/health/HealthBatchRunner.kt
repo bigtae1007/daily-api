@@ -13,9 +13,4 @@ class HealthBatchRunner(
     fun runCanAbleCheckTime() {
         slackMessageService.sendMessage(channel = "#server-api-alarm", text = "서버 정상 동작 중!", type = MessageType.CHECK)
     }
-
-    @Scheduled(cron = "*/10 * * * * *")
-    fun runTestAlam() {
-        slackMessageService.sendMessage(channel = "#server-api-alarm", text = "알람 보내보기", type = MessageType.INFO)
-    }
 }
