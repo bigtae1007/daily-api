@@ -13,4 +13,17 @@
                    #{content}
             )
     </insert>
+    <insert id="insertBlogFile">
+        INSERT INTO daily_db.blog_s3_file (name)
+        VALUES
+        <foreach collection="names" item="name" separator=",">
+            (#{name})
+        </foreach>
+    </insert>
+    <select id="getZipFile">
+        SELECT id, name, uploaded AS done, UNIX_TIMESTAMP(created_at) * 1000 as createdAt
+        FROM daily_db.blog_s3_file
+        WHERE uploaded = 0
+        LIMIT 50
+    </select>
 </mapper>
