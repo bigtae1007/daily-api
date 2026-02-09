@@ -19,8 +19,12 @@ class GetServiceImpl(
     override fun getBlogFileName(): List<ZipFileListResponse> {
         val response = mapper.getZipFile()
         val sortedRes = response
-            .sortedByDescending { it.id}
+            .sortedBy { it.id }
 
         return sortedRes
+    }
+
+    override fun updateDoneFile(id: Int): Int {
+        return mapper.updateDoneFile(id)
     }
 }

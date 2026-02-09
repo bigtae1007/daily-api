@@ -6,7 +6,7 @@
 <mapper namespace="com.tobby.dailyapp.blog.mapper.BlogMapper">
     <insert id="insertBlog"
     >
-        INSERT INTO blog_article (title, category, content)
+        INSERT INTO daily_db.blog_article (title, category, content)
             VALUE (
                    #{title},
                    #{category},
@@ -26,4 +26,9 @@
         WHERE uploaded = 0
         LIMIT 50
     </select>
+    <update id="updateDoneFile">
+        UPDATE daily_db.blog_s3_file
+        SET uploaded = true
+        WHERE id = ${id}
+    </update>
 </mapper>

@@ -1,5 +1,6 @@
 package com.tobby.dailyapp.blog
 
+import com.tobby.dailyapp.blog.dto.DoneRequest
 import com.tobby.dailyapp.blog.dto.UploadRequest
 import com.tobby.dailyapp.blog.dto.ZipFileListResponse
 import com.tobby.dailyapp.common.ApiResponse
@@ -38,5 +39,13 @@ class BlogController(
     fun getBlogZip(): ApiResponse<List<ZipFileListResponse>> {
         val res = blogService.getBlogFileName()
         return ApiResponse(res)
+    }
+
+    @PostMapping("/done")
+    fun done(
+        @RequestBody request: DoneRequest
+    ) : ApiResponse<MessageResponse> {
+        val res = blogService.updateDoneFile(request.id)
+        return ApiResponse(MessageResponse(message = "success", code = res.toLong()))
     }
 }
