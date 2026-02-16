@@ -4,15 +4,6 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.tobby.dailyapp.blog.mapper.BlogMapper">
-    <insert id="insertBlog"
-    >
-        INSERT INTO daily_db.blog_article (title, category, content)
-            VALUE (
-                   #{title},
-                   #{category},
-                   #{content}
-            )
-    </insert>
     <insert id="insertBlogFile">
         INSERT INTO daily_db.blog_s3_file (name)
         VALUES
@@ -28,7 +19,7 @@
     </select>
     <update id="updateDoneFile">
         UPDATE daily_db.blog_s3_file
-        SET uploaded = true
-        WHERE id = ${id}
+        SET uploaded = #{uploaded}
+        WHERE id = #{id}
     </update>
 </mapper>

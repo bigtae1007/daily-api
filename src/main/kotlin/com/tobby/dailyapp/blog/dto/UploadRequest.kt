@@ -1,5 +1,8 @@
 package com.tobby.dailyapp.blog.dto
 
-data class UploadRequest (
-    val names : List<String>
+import jakarta.validation.constraints.NotEmpty
+
+data class UploadRequest(
+    @field:NotEmpty(message = "names는 최소 1개 이상이어야 합니다.")
+    val names: List<String>,
 )

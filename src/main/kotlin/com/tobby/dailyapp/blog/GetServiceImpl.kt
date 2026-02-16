@@ -3,62 +3,66 @@ package com.tobby.dailyapp.blog
 import com.tobby.dailyapp.blog.dto.UnZipBlogResponse
 import com.tobby.dailyapp.blog.dto.ZipFileListResponse
 import com.tobby.dailyapp.blog.mapper.BlogMapper
-import com.tobby.dailyapp.common.logger
+import com.tobby.dailyapp.common.exception.BadRequestException
+import com.tobby.dailyapp.common.exception.ExternalApiException
+import com.tobby.dailyapp.common.exception.NotFoundException
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.client.RestClient
-import tools.jackson.databind.JsonNode
-import tools.jackson.databind.ObjectMapper
+import org.springframework.web.client.RestClientException
 
 @Service
 class GetServiceImpl(
     private val mapper: BlogMapper,
     private val restClient: RestClient,
-    private val objectMapper: ObjectMapper,
-    @Value("\${blog.jsonBaseUrl}") private val jsonBaseUrl: String
+    @Value("\${blog.jsonBaseUrl:}") private val jsonBaseUrl: String,
 ) : BlogService {
-    val log = logger<GetServiceImpl>()
 
     data class BlogJson(
         val title: String = "",
         val content: String = "",
-        val tags: List<String> = emptyList()
+        val tags: List<String> = emptyList(),
     )
-    override fun insertBlog(title: String, content: String, category: String, tags: List<String>?) {
-        mapper.insertBlog(title, category, content)
-    }
 
+    @Transactional
     override fun insertBlogFileName(names: List<String>): Int {
         return mapper.insertBlogFile(names)
     }
 
-    override fun getBlogFileName(size: Int?): List<ZipFileListResponse> {
-        val limit = size ?: 50
-        val response = mapper.getZipFile(limit)
-        val sortedRes = response
-            .sortedBy { it.id }
-
-        return sortedRes
+    @Transactional(readOnly = true)
+    override fun getBlogFileName(size: Int): List<ZipFileListResponse> {
+        return mapper.getZipFile(size).sortedBy { it.id }
     }
 
-    override fun updateDoneFile(id: Int): Int {
-        return mapper.updateDoneFile(id)
+    @Transactional
+    override fun updateDoneFile(id: Int, uploaded: Boolean): Int {
+        return mapper.updateDoneFile(id = id, uploaded = uploaded)
     }
 
+    @Transactional(readOnly = true)
     override fun getOneUnZip(): UnZipBlogResponse {
-        val fileName = getBlogFileName(1).first().name
-        val url = "$jsonBaseUrl/$fileName"
+        if (jsonBaseUrl.isBlank()) {
+            throw BadRequestException("blog.jsonBaseUrl 설정이 필요합니다.")
+        }
 
-        val blog = restClient.get()
-            .uri(url)
-            .retrieve()
-            .body(BlogJson::class.java)
-            ?: throw IllegalStateException("Empty response from $url")
+        val firstFile = getBlogFileName(1).firstOrNull()
+            ?: throw NotFoundException("처리할 블로그 파일이 없습니다.")
+        val url = "$jsonBaseUrl/${firstFile.name}"
+
+        val blog = try {
+            restClient.get()
+                .uri(url)
+                .retrieve()
+                .body(BlogJson::class.java)
+        } catch (e: RestClientException) {
+            throw ExternalApiException("블로그 원문을 불러오지 못했습니다.", e.message)
+        } ?: throw ExternalApiException("블로그 원문 응답이 비어 있습니다.", "url=$url")
 
         return UnZipBlogResponse(
-            blog.title,
-            blog.content,
-            blog.tags
+            title = blog.title,
+            content = blog.content,
+            tags = blog.tags,
         )
     }
 }

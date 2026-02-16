@@ -1,11 +1,13 @@
 package com.tobby.dailyapp.slack
 
+import com.tobby.dailyapp.common.exception.ExternalApiException
 import com.tobby.dailyapp.common.logger
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
+import org.springframework.web.client.RestClientException
 import org.springframework.web.client.RestTemplate
 
 @Service
@@ -14,39 +16,41 @@ class SlackMessageService(
 ) {
     private val log = logger<SlackMessageService>()
 
-    @Value("\${slack.bot-token}")
+    @Value("\${slack.bot-token:}")
     private lateinit var botToken: String
 
     fun sendMessage(channel: String, text: String, type: MessageType) {
-        val url = "https://slack.com/api/chat.postMessage"
+        if (botToken.isBlank()) {
+            throw ExternalApiException("Slack bot token이 비어 있습니다.")
+        }
 
+        val url = "https://slack.com/api/chat.postMessage"
         val headers = HttpHeaders().apply {
             contentType = MediaType.APPLICATION_JSON
             setBearerAuth(botToken)
         }
 
-        val styledText: String = when (type) {
-            MessageType.CHECK ->
-                "-------------------\n🩺 *Health Check*\n \n$text\n "
-
-            MessageType.INFO ->
-                "-------------------\nℹ️ *System Info*\n \n$text\n "
+        val styledText = when (type) {
+            MessageType.CHECK -> "[Health Check]\n$text"
+            MessageType.INFO -> "[System Info]\n$text"
         }
+
         val body = mapOf(
             "channel" to channel,
-            "text" to styledText
+            "text" to styledText,
         )
 
-        val request = HttpEntity(body, headers)
-        val response = restTemplate.postForEntity(url, request, String::class.java)
-
-        val responseBody = response.body
-            ?: throw IllegalStateException("Slack 응답이 비어있습니다")
+        val responseBody = try {
+            restTemplate.postForEntity(url, HttpEntity(body, headers), String::class.java).body
+        } catch (e: RestClientException) {
+            throw ExternalApiException("Slack API 호출에 실패했습니다.", e.message)
+        } ?: throw ExternalApiException("Slack 응답이 비어 있습니다.")
 
         if (!responseBody.contains("\"ok\":true")) {
             log.error("Slack 메시지 전송 실패: {}", responseBody)
-        } else {
-            log.info("Slack 메시지 전송 성공")
+            throw ExternalApiException("Slack 메시지 전송이 실패했습니다.", responseBody)
         }
+
+        log.info("Slack 메시지 전송 성공")
     }
 }

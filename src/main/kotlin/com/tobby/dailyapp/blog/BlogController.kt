@@ -1,58 +1,59 @@
 package com.tobby.dailyapp.blog
 
+
 import com.tobby.dailyapp.blog.dto.DoneRequest
 import com.tobby.dailyapp.blog.dto.UnZipBlogResponse
 import com.tobby.dailyapp.blog.dto.UploadRequest
 import com.tobby.dailyapp.blog.dto.ZipFileListResponse
 import com.tobby.dailyapp.common.ApiResponse
-import com.tobby.dailyapp.common.MessageResponse
-import com.tobby.dailyapp.common.logger
+import jakarta.validation.Valid
+import jakarta.validation.constraints.Max
+import jakarta.validation.constraints.Min
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PatchMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.RestController
 
+@Validated
 @RestController
-@RequestMapping("/blog")
+@RequestMapping("/blogs")
 class BlogController(
-    private val blogService: BlogService
+    private val blogService: BlogService,
 ) {
-    private val log = logger<BlogController>()
-
-    @GetMapping("/list")
-    fun blog(): String {
-        blogService.insertBlog("test", "test", "test", listOf("test"))
-        return "hel"
-    }
-
-    @PostMapping("/upload")
+    @PostMapping("/files")
     fun upload(
-        @RequestBody request: UploadRequest
-    ): ApiResponse<MessageResponse> {
-        log.info("$request")
-        val res = blogService.insertBlogFileName(request.names)
-        val message = MessageResponse(message = "success", code = res.toLong())
-        return ApiResponse(message)
+        @Valid @RequestBody request: UploadRequest,
+    ): ApiResponse<Map<String, Int>> {
+        val inserted = blogService.insertBlogFileName(request.names)
+        return ApiResponse.ok(mapOf("inserted" to inserted))
     }
 
-    @GetMapping("/list/zip")
-    fun getBlogZip(): ApiResponse<List<ZipFileListResponse>> {
-        val res = blogService.getBlogFileName()
-        return ApiResponse(res)
+    @GetMapping("/files")
+    fun getBlogZip(
+        @RequestParam(defaultValue = "50")
+        @Min(1)
+        @Max(200)
+        size: Int,
+    ): ApiResponse<List<ZipFileListResponse>> {
+        return ApiResponse.ok(blogService.getBlogFileName(size))
     }
 
-    @PostMapping("/done")
+    @PatchMapping("/files/{id}/done")
     fun done(
-        @RequestBody request: DoneRequest
-    ): ApiResponse<MessageResponse> {
-        val res = blogService.updateDoneFile(request.id)
-        return ApiResponse(MessageResponse(message = "success", code = res.toLong()))
+        @PathVariable id: Int,
+        @Valid @RequestBody request: DoneRequest,
+    ): ApiResponse<Map<String, Int>> {
+        val updated = blogService.updateDoneFile(id = id, uploaded = request.uploaded)
+        return ApiResponse.ok(mapOf("updated" to updated))
     }
 
-    @GetMapping("/one/unzip")
+    @GetMapping("/unzipped/next")
     fun getOneUnzip(): ApiResponse<UnZipBlogResponse> {
-        val res = blogService.getOneUnZip()
-        return ApiResponse(res)
+        return ApiResponse.ok(blogService.getOneUnZip())
     }
 }

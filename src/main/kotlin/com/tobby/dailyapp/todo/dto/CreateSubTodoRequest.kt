@@ -1,11 +1,12 @@
 package com.tobby.dailyapp.todo.dto
 
-import org.jetbrains.annotations.NotNull
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
 
 data class CreateSubTodoRequest(
-    @field:NotNull
+    @field:NotBlank(message = "title은 필수입니다.")
     val title: String,
 
-    @field:NotNull
+    @field:NotNull(message = "parentId는 필수입니다.")
     val parentId: Long,
 )

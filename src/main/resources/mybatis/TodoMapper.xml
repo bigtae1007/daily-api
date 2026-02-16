@@ -5,7 +5,7 @@
 
 <mapper namespace="com.tobby.dailyapp.todo.mapper.TodoMapper">
     <select id="findSubTodos" resultType="com.tobby.dailyapp.todo.dto.TodoListResponse">
-        SELECT *
+        SELECT id, todo_id AS todoId, title
         FROM sub_todo
         ORDER BY id DESC
         LIMIT #{size}
@@ -16,6 +16,6 @@
             keyProperty="id"
     >
         INSERT sub_todo (todo_id, title)
-            VALUE (#{todoId}, #{title})
+            VALUES (#{todoId}, #{title})
     </insert>
 </mapper>

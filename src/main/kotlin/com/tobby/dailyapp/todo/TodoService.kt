@@ -1,43 +1,52 @@
 package com.tobby.dailyapp.todo
 
+import com.tobby.dailyapp.common.exception.NotFoundException
 import com.tobby.dailyapp.todo.dto.TodoData
 import com.tobby.dailyapp.todo.dto.TodoListResponse
 import com.tobby.dailyapp.todo.mapper.TodoMapper
 import com.tobby.dailyapp.todo.repository.TodoRepository
-import jakarta.transaction.Transactional
-import org.springframework.data.domain.*
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class TodoService(
     private val todoRepository: TodoRepository,
     private val todoMapper: TodoMapper,
 ) {
+    @Transactional(readOnly = true)
     fun getTodos(size: Int): List<Todo> {
         val pageable = PageRequest.of(0, size, Sort.by("id").descending())
         return todoRepository.findAll(pageable).content
     }
 
+    @Transactional(readOnly = true)
     fun getSubTodos(size: Int): List<TodoListResponse> {
         return todoMapper.findSubTodos(size)
     }
 
+    @Transactional
     fun createTodo(title: String, priority: Int, isDone: Boolean): Long {
         val todo = Todo(title = title, priority = priority, isDone = isDone)
         val result = todoRepository.save(todo)
         return result.id!!
     }
 
+    @Transactional
     fun createSubTodo(title: String, todoId: Long): Long {
-        val todo = TodoData(title=title, todoId = todoId)
+        if (!todoRepository.existsById(todoId)) {
+            throw NotFoundException("상위 Todo를 찾을 수 없습니다.", "todoId=$todoId")
+        }
+        val todo = TodoData(title = title, todoId = todoId)
         todoMapper.insertSubTodos(todo)
-        return todo.id!!
+        return todo.id ?: throw IllegalStateException("sub_todo 생성 id를 확인할 수 없습니다.")
     }
 
     @Transactional
     fun updateTodo(id: Long, title: String?, priority: Int?, isDone: Boolean?) {
         val todo = todoRepository.findById(id)
-            .orElseThrow { IllegalArgumentException("Todo 없음") }
+            .orElseThrow { NotFoundException("Todo를 찾을 수 없습니다.", "id=$id") }
 
         todo.update(
             title = title,
@@ -46,8 +55,11 @@ class TodoService(
         )
     }
 
+    @Transactional
     fun deleteTodo(id: Long) {
-        require(todoRepository.existsById(id)) { "존재하지 않는 Todo입니다." }
+        if (!todoRepository.existsById(id)) {
+            throw NotFoundException("Todo를 찾을 수 없습니다.", "id=$id")
+        }
         todoRepository.deleteById(id)
     }
 }

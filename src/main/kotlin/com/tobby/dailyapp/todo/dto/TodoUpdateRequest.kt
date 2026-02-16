@@ -1,13 +1,12 @@
 package com.tobby.dailyapp.todo.dto
 
-import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.NotNull
+import jakarta.validation.constraints.Max
+import jakarta.validation.constraints.Min
 
 data class TodoUpdateRequest(
-    @field:NotNull(message = "아이디를 선택해주세요.")
-    val id : Long,
-
     val title: String?,
     val isDone: Boolean?,
-    val priority: Int?
+    @field:Min(value = 1, message = "priority는 1 이상이어야 합니다.")
+    @field:Max(value = 3, message = "priority는 3 이하여야 합니다.")
+    val priority: Int?,
 )
