@@ -24,7 +24,7 @@
         SELECT id, name, uploaded AS done, UNIX_TIMESTAMP(created_at) * 1000 as createdAt
         FROM daily_db.blog_s3_file
         WHERE uploaded = 0
-        LIMIT 50
+        LIMIT #{limit}
     </select>
     <update id="updateDoneFile">
         UPDATE daily_db.blog_s3_file
