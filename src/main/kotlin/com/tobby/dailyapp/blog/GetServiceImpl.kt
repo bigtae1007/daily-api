@@ -6,6 +6,8 @@ import com.tobby.dailyapp.blog.mapper.BlogMapper
 import com.tobby.dailyapp.common.exception.BadRequestException
 import com.tobby.dailyapp.common.exception.ExternalApiException
 import com.tobby.dailyapp.common.exception.NotFoundException
+import com.tobby.dailyapp.slack.MessageType
+import com.tobby.dailyapp.slack.SlackMessageService
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -17,6 +19,7 @@ class GetServiceImpl(
     private val mapper: BlogMapper,
     private val restClient: RestClient,
     @Value("\${blog.jsonBaseUrl:}") private val jsonBaseUrl: String,
+    private val slackMessageService: SlackMessageService
 ) : BlogService {
 
     data class BlogJson(
@@ -42,6 +45,7 @@ class GetServiceImpl(
 
     @Transactional(readOnly = true)
     override fun getOneUnZip(): UnZipBlogResponse {
+        slackMessageService.sendMessage("#server-api-alarm","조회를 시작합니다", type = MessageType.INFO)
         if (jsonBaseUrl.isBlank()) {
             throw BadRequestException("blog.jsonBaseUrl 설정이 필요합니다.")
         }
@@ -50,6 +54,7 @@ class GetServiceImpl(
             ?: throw NotFoundException("처리할 블로그 파일이 없습니다.")
         val url = "$jsonBaseUrl/${firstFile.name}"
 
+        slackMessageService.sendMessage("#server-api-alarm","${firstFile.name} 블로그 업로드 시작합니다.", type = MessageType.INFO)
         val blog = try {
             restClient.get()
                 .uri(url)
@@ -60,6 +65,7 @@ class GetServiceImpl(
         } ?: throw ExternalApiException("블로그 원문 응답이 비어 있습니다.", "url=$url")
 
         return UnZipBlogResponse(
+            id = firstFile.id,
             title = blog.title,
             content = blog.content,
             tags = blog.tags,
