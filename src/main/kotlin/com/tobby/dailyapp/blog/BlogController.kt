@@ -46,9 +46,8 @@ class BlogController(
     @PatchMapping("/files/{id}/done")
     fun done(
         @PathVariable id: Int,
-        @Valid @RequestBody request: DoneRequest,
     ): ApiResponse<Map<String, Int>> {
-        val updated = blogService.updateDoneFile(id = id, uploaded = request.uploaded)
+        val updated = blogService.updateDoneFile(id = id, uploaded = true)
         return ApiResponse.ok(mapOf("updated" to updated))
     }
 

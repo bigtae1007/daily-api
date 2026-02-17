@@ -40,6 +40,7 @@ class GetServiceImpl(
 
     @Transactional
     override fun updateDoneFile(id: Int, uploaded: Boolean): Int {
+        slackMessageService.sendMessage("#server-api-alarm","${id}에 블록그 글을 업로드 완료했습니다.", type = MessageType.INFO)
         return mapper.updateDoneFile(id = id, uploaded = uploaded)
     }
 
