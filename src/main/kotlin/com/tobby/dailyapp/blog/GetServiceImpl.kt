@@ -70,6 +70,7 @@ class GetServiceImpl(
             title = blog.title,
             content = blog.content,
             tags = blog.tags,
+            category = firstFile.category
         )
     }
 }

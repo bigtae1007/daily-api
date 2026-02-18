@@ -4,5 +4,6 @@ data class UnZipBlogResponse(
     val id: Int,
     val title: String,
     val content: String,
-    val tags: List<String>
+    val tags: List<String>,
+    val category: String? = ""
 )

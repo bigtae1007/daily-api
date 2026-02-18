@@ -4,7 +4,8 @@ data class ZipFileListResponse(
     val id: Int,
     val name: String,
     val done: Boolean,
-    val createdAt: Long
+    val createdAt: Long,
+    val category: String? = ""
 ) {
     val timeAgo: String
         get() {
