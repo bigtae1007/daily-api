@@ -29,8 +29,8 @@ class GetServiceImpl(
     )
 
     @Transactional
-    override fun insertBlogFileName(names: List<String>): Int {
-        return mapper.insertBlogFile(names)
+    override fun insertBlogFileName(names: List<String>, category: String): Int {
+        return mapper.insertBlogFile(names, category)
     }
 
     @Transactional(readOnly = true)
@@ -40,13 +40,13 @@ class GetServiceImpl(
 
     @Transactional
     override fun updateDoneFile(id: Int, uploaded: Boolean): Int {
-        slackMessageService.sendMessage("#server-api-alarm","${id}에 블록그 글을 업로드 완료했습니다.", type = MessageType.INFO)
+        slackMessageService.sendMessage("#server-api-alarm", "${id}에 블록그 글을 업로드 완료했습니다.", type = MessageType.INFO)
         return mapper.updateDoneFile(id = id, uploaded = uploaded)
     }
 
     @Transactional(readOnly = true)
     override fun getOneUnZip(): UnZipBlogResponse {
-        slackMessageService.sendMessage("#server-api-alarm","조회를 시작합니다", type = MessageType.INFO)
+        slackMessageService.sendMessage("#server-api-alarm", "조회를 시작합니다", type = MessageType.INFO)
         if (jsonBaseUrl.isBlank()) {
             throw BadRequestException("blog.jsonBaseUrl 설정이 필요합니다.")
         }
@@ -55,7 +55,11 @@ class GetServiceImpl(
             ?: throw NotFoundException("처리할 블로그 파일이 없습니다.")
         val url = "$jsonBaseUrl/${firstFile.name}"
 
-        slackMessageService.sendMessage("#server-api-alarm","${firstFile.name} 블로그 업로드 시작합니다.", type = MessageType.INFO)
+        slackMessageService.sendMessage(
+            "#server-api-alarm",
+            "${firstFile.name} 블로그 업로드 시작합니다.",
+            type = MessageType.INFO
+        )
         val blog = try {
             restClient.get()
                 .uri(url)

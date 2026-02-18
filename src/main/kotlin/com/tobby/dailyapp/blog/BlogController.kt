@@ -29,7 +29,7 @@ class BlogController(
     fun upload(
         @Valid @RequestBody request: UploadRequest,
     ): ApiResponse<Map<String, Int>> {
-        val inserted = blogService.insertBlogFileName(request.names)
+        val inserted = blogService.insertBlogFileName(request.names, request.category ?: "")
         return ApiResponse.ok(mapOf("inserted" to inserted))
     }
 

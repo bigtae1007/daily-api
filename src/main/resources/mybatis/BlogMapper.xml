@@ -5,16 +5,17 @@
 
 <mapper namespace="com.tobby.dailyapp.blog.mapper.BlogMapper">
     <insert id="insertBlogFile">
-        INSERT INTO daily_db.blog_s3_file (name)
+        INSERT INTO daily_db.blog_s3_file (name, category)
         VALUES
         <foreach collection="names" item="name" separator=",">
-            (#{name})
+            (#{name} , #{category})
         </foreach>
     </insert>
     <select id="getZipFile">
         SELECT id, name, uploaded AS done, UNIX_TIMESTAMP(created_at) * 1000 as createdAt, category
         FROM daily_db.blog_s3_file
         WHERE uploaded = 0
+        ORDER BY id ASC
         LIMIT #{limit}
     </select>
     <update id="updateDoneFile">

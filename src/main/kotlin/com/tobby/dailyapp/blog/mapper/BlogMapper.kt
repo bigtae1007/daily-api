@@ -6,7 +6,7 @@ import org.apache.ibatis.annotations.Param
 
 @Mapper
 interface BlogMapper {
-    fun insertBlogFile(names: List<String>): Int
+    fun insertBlogFile(names: List<String>, category: String): Int
     fun getZipFile(@Param("limit") limit: Int): List<ZipFileListResponse>
     fun updateDoneFile(
         @Param("id") id: Int,
