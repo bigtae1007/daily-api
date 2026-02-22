@@ -23,4 +23,14 @@
         SET uploaded = #{uploaded}
         WHERE id = #{id}
     </update>
+    <select id="getZipFileByCursor">
+        SELECT id, name, uploaded AS done, UNIX_TIMESTAMP(created_at) * 1000 as createdAt, category
+        FROM daily_db.blog_s3_file
+        <if test="cursorId != null">
+            WHERE
+             id &lt; #{cursorId}
+        </if>
+        ORDER BY id DESC
+        LIMIT #{limit}
+    </select>
 </mapper>

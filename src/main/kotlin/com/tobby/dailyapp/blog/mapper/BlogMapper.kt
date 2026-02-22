@@ -12,4 +12,6 @@ interface BlogMapper {
         @Param("id") id: Int,
         @Param("uploaded") uploaded: Boolean,
     ): Int
+    fun getZipFileByOffset(limit: Int, offset: Int): List<ZipFileListResponse>
+    fun getZipFileByCursor(limit: Int, cursorId: Int?): List<ZipFileListResponse>
 }

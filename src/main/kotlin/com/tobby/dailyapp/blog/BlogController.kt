@@ -1,6 +1,7 @@
 package com.tobby.dailyapp.blog
 
 
+import com.tobby.dailyapp.blog.dto.BlogFilesCursorResponse
 import com.tobby.dailyapp.blog.dto.DoneRequest
 import com.tobby.dailyapp.blog.dto.UnZipBlogResponse
 import com.tobby.dailyapp.blog.dto.UploadRequest
@@ -54,5 +55,18 @@ class BlogController(
     @GetMapping("/unzipped/next")
     fun getOneUnzip(): ApiResponse<UnZipBlogResponse> {
         return ApiResponse.ok(blogService.getOneUnZip())
+    }
+
+    @GetMapping("/files/continuation")
+    fun getContinuationBlog(
+        @RequestParam(defaultValue = "20") size: Int,
+        @RequestParam cursorId: Int?
+    ): ApiResponse<BlogFilesCursorResponse> {
+        return ApiResponse.ok(blogService.getBlogFileNameByContinuation(cursorId, size = size))
+    }
+
+    @GetMapping("/files/page")
+    fun getBlogZipByPage(): Int {
+        return 1
     }
 }

@@ -1,5 +1,7 @@
 package com.tobby.dailyapp.blog
 
+import com.tobby.dailyapp.blog.dto.BlogFilesCursorResponse
+import com.tobby.dailyapp.blog.dto.BlogFilesPageResponse
 import com.tobby.dailyapp.blog.dto.UnZipBlogResponse
 import com.tobby.dailyapp.blog.dto.ZipFileListResponse
 import com.tobby.dailyapp.blog.mapper.BlogMapper
@@ -76,5 +78,18 @@ class GetServiceImpl(
             tags = blog.tags,
             category = firstFile.category
         )
+    }
+
+    @Transactional
+    override fun getBlogFileNameByContinuation(cursorId: Int?, size: Int): BlogFilesCursorResponse {
+        val response = mapper.getZipFileByCursor(cursorId = cursorId, limit = size + 1)
+        val isContinuation = response.size > size
+        val splicedList = if(isContinuation) response.subList(0, size) else response
+        return BlogFilesCursorResponse(splicedList, size, splicedList.lastOrNull()?.id, isContinuation)
+    }
+
+    @Transactional
+    override fun getBlogFileNameByPage(page: Int, size: Int): BlogFilesPageResponse {
+        TODO("Not yet implemented")
     }
 }
