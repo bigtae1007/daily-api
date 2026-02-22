@@ -2,6 +2,7 @@ package com.tobby.dailyapp.blog
 
 
 import com.tobby.dailyapp.blog.dto.BlogFilesCursorResponse
+import com.tobby.dailyapp.blog.dto.BlogFilesPageResponse
 import com.tobby.dailyapp.blog.dto.DoneRequest
 import com.tobby.dailyapp.blog.dto.UnZipBlogResponse
 import com.tobby.dailyapp.blog.dto.UploadRequest
@@ -66,7 +67,10 @@ class BlogController(
     }
 
     @GetMapping("/files/page")
-    fun getBlogZipByPage(): Int {
-        return 1
+    fun getBlogZipByPage(
+        @RequestParam(defaultValue = "1") page: Int,
+        @RequestParam(defaultValue = "20") size: Int,
+    ): ApiResponse<BlogFilesPageResponse>  {
+        return ApiResponse.ok(blogService.getBlogFileNameByPage(page, size))
     }
 }

@@ -14,4 +14,5 @@ interface BlogMapper {
     ): Int
     fun getZipFileByOffset(limit: Int, offset: Int): List<ZipFileListResponse>
     fun getZipFileByCursor(limit: Int, cursorId: Int?): List<ZipFileListResponse>
+    fun totalZipFileCount() : Int
 }

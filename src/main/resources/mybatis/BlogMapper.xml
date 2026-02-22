@@ -28,9 +28,19 @@
         FROM daily_db.blog_s3_file
         <if test="cursorId != null">
             WHERE
-             id &lt; #{cursorId}
+            id &lt; #{cursorId}
         </if>
         ORDER BY id DESC
         LIMIT #{limit}
+    </select>
+    <select id="getZipFileByOffset">
+        SELECT  id, name, uploaded AS done, UNIX_TIMESTAMP(created_at) * 1000 as createdAt, category
+        FROM daily_db.blog_s3_file
+        ORDER BY id DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+    <select id="totalZipFileCount">
+        SELECT COUNT(id)
+        FROM daily_db.blog_s3_file
     </select>
 </mapper>

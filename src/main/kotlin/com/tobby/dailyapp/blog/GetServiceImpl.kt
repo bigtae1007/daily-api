@@ -84,12 +84,26 @@ class GetServiceImpl(
     override fun getBlogFileNameByContinuation(cursorId: Int?, size: Int): BlogFilesCursorResponse {
         val response = mapper.getZipFileByCursor(cursorId = cursorId, limit = size + 1)
         val isContinuation = response.size > size
-        val splicedList = if(isContinuation) response.subList(0, size) else response
+        val splicedList = if (isContinuation) response.subList(0, size) else response
         return BlogFilesCursorResponse(splicedList, size, splicedList.lastOrNull()?.id, isContinuation)
     }
 
     @Transactional
     override fun getBlogFileNameByPage(page: Int, size: Int): BlogFilesPageResponse {
-        TODO("Not yet implemented")
+        val offset = (page - 1) * size
+        val response = mapper.getZipFileByOffset(limit = 20, offset = offset)
+        val totalCount = mapper.totalZipFileCount()
+        val hasNext = offset + size - totalCount < 0
+        val totalPages: Int = if (totalCount == 0) 0 else if (totalCount == size) 1 else totalCount / size + 1
+
+        return BlogFilesPageResponse(
+            items = response,
+            page = page,
+            size = size,
+            totalCount = totalCount.toLong(),
+            totalPages = totalPages,
+            hasNext = hasNext
+        )
+
     }
 }
