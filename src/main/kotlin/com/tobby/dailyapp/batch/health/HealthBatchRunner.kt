@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component
 class HealthBatchRunner(
     val slackMessageService: SlackMessageService
 ) {
-    @Scheduled(cron = "0 0 10-20/4 * * *")
+    @Scheduled(cron = "0 0 10,20 * * *")
     fun runCanAbleCheckTime() {
         slackMessageService.sendMessage(channel = "#server-api-alarm", text = "서버 정상 동작 중!", type = MessageType.CHECK)
     }
